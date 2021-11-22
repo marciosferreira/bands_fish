@@ -1,48 +1,108 @@
+#ret, image = cv2.imreadmulti('LanB2_KD1P2_31603_gut_2.tif', [], cv2.IMREAD_ANYCOLOR)
+# You can then access each layer by their indexes (eg. image[0]).
+
+from matplotlib import pyplot as plt
+import time
+import pandas as pd
+import math
+import numpy as np
+import cv2
+from skimage import io
 quadr = 'B'
 
-import cv2
-import numpy as np
-import math
-import pandas as pd
-import time
 
-quad_D = 1
-quad_D_count = 0
-update_counter = 92
+pd.set_option('display.max_columns', None)
 
 
-fish_0_history = []
-fish_1_history = []
+#imagex = io.imread("C:/Users/marci/Documents/projetos_code/bands fish/videos/20211009_cab_exp_1_MMStack_Default.ome.tif")
+ret, images = cv2.imreadmulti(
+    'C:/Users/marci/Documents/projetos_code/bands fish/videos/origonal_subset_smoothed_rgb_smoothed.tif', [], cv2.IMREAD_GRAYSCALE
+)
+# print(images[500]).imshow(images[500])
+#cv2.imshow('teste', images[0])
+print(images[0].shape)
+print(images[0][0])
+print(images[0][1])
+print(images[0][2])
+print(type(images))
+updated_array = images[0]
+'''for i in range(1, len(images) - 1):
+    updated_array = (images[i] + updated_array)/2'''
 
-counter_activation = 1 
-first = True
+avg_img = np.mean(images, axis=0)
 
-went_ok = 0
-pd.set_option('display.max_columns', None)  
+avg_img_as_background = avg_img.astype(np.uint8)
 
-cap = cv2.VideoCapture('C:/Users/marci/Desktop/20191121_1454_iCab_L_C.avi')
-background_image = cv2.imread('C:/Users/marci/Desktop/background_1.jpg')
-bw_back = cv2.cvtColor(background_image, cv2.COLOR_BGR2GRAY)
-bw_back = cv2.GaussianBlur(bw_back, (9,9) ,0) 
 
-#create a blank image to plot everything on
-blank_image = np.zeros((bw_back.shape[0], bw_back.shape[1], 3), np.uint8)
+blured_bg_image = cv2.GaussianBlur(avg_img_as_background, (9, 9), 0)
 
-previous_df = None
-lopp = 0
+blank_image = np.zeros((blured_bg_image.shape[0], blured_bg_image.shape[1], 3), np.uint8)
 
-previous_id_fish_local = []
+final_counts = []
+for image in images:
+  print("one")
+  blured_main_image = cv2.GaussianBlur(image, (9, 9), 0)
+  diff = cv2.absdiff(blured_bg_image, blured_main_image)
+  ret, thresh = cv2.threshold(diff, 15, 255, cv2.THRESH_BINARY)
+  contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+  filtered_contours = []
+  for idx, cnt in enumerate(contours):      
+    area = cv2.contourArea(cnt)
+    if area > 10:
+      filtered_contours.append(cnt[idx])  
+  drawn_image = blank_image.copy()
+  drawn_image = cv2.drawContours(drawn_image, filtered_contours, -1, color=(0,255,0),thickness=-1)
+  #imS = cv2.resize(drawn_image, (960, 540))               
+  cv2.imshow("output", drawn_image)
+     
+out = cv2.VideoWriter("output.mp4", cv2.VideoWriter_fourcc(*'mp4v'), 7, (2052, 2644))
+for frame in images:
+    out.write(frame) # frame is a numpy.ndarray with shape (1280, 720, 3)
+out.release()
 
-cv2.imshow('background' , bw_back)
+'''for img in final_img:
+  imS = cv2.resize(img, (960, 540))               
+  cv2.imshow("output", imS)
+  time.sleep(0.5)                   
+  '''
+
+
+'''
+print("updt")
+print(updated_array_int[0])
+print(updated_array_int[0].shape)
+print(type(updated_array_int[0]))
+# plt.imshow(imagex[0])
+# plt.show()
+'''
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+# cv2.destroyAllwindows()
+
+
+#background_image = cv2.imread('C:/Users/marci/Desktop/background_1.jpg')
+#bw_back = cv2.cvtColor(background_image, cv2.COLOR_BGR2GRAY)
+#bw_back = cv2.GaussianBlur(bw_back, (9,9) ,0)
+
+# create a blank image to plot everything on
+#blank_image = np.zeros((bw_back.shape[0], bw_back.shape[1], 3), np.uint8)
+
+#previous_df = None
+#lopp = 0
+
+#previous_id_fish_local = []
+
+#cv2.imshow('background' , bw_back)
 
 # Check if camera opened successfully
-if (cap.isOpened()== False): 
+'''if (cap.isOpened()== False): 
   print("Error opening video stream or file")
 
 # Read until video is completed
-for i in range(3850,6000):   #3000 to 4000
+for i in range(3850,6000):   #3000 to 4000'''
 
-
+'''
   cap.set(1, i)
   print(i)
   # Capture frame-by-frame
@@ -354,4 +414,4 @@ for i in range(3850,6000):   #3000 to 4000
 cap.release()
 
 # Closes all the frames
-cv2.destroy
+cv2.destroy'''
