@@ -8,76 +8,106 @@ import math
 import numpy as np
 import cv2
 from skimage import io
-quadr = 'B'
 
+import scipy.stats
 
-pd.set_option('display.max_columns', None)
-
-
-#imagex = io.imread("C:/Users/marci/Documents/projetos_code/bands fish/videos/20211009_cab_exp_1_MMStack_Default.ome.tif")
 ret, images = cv2.imreadmulti(
-    'C:/Users/marci/Documents/projetos_code/bands fish/videos/origonal_subset_smoothed_rgb_smoothed.tif', [], cv2.IMREAD_GRAYSCALE
-)
-# print(images[500]).imshow(images[500])
-#cv2.imshow('teste', images[0])
-print(images[0].shape)
-print(images[0][0])
-print(images[0][1])
-print(images[0][2])
-print(type(images))
-updated_array = images[0]
-'''for i in range(1, len(images) - 1):
-    updated_array = (images[i] + updated_array)/2'''
+    'C:/Users/marci/Documents/projetos_code/bands fish/videos/histo.tif', [], cv2.IMREAD_GRAYSCALE)
+
+'''images_corrected = []
+for image in images:
+  print("image")
+  print(image)
+  max_number = 50
+  image = image.astype(np.uint16)
+  corrected = np.multiply(image, 255) #.astype(np.uint16)
+  corrected_divided = np.divide(corrected, max_number).astype(np.uint8)
+  #corrected_divided_bright = np.add(corrected_divided, 50).astype(np.uint8)
+
+  print("multipled")
+  print(corrected)
+  images_corrected.append(corrected_divided)
+  print("corrected")
+  print(images_corrected[-1])
+  print(np.max(images_corrected[-1]))
+
+images = images_corrected
+'''
 
 avg_img = np.mean(images, axis=0)
+#result = scipy.stats.mode(np.stack(images[::10]), axis=0)
+#avg_img = result.mode[0]
 
 avg_img_as_background = avg_img.astype(np.uint8)
 
+
+imSx = cv2.resize(avg_img_as_background, (1000, 500))               
+cv2.imshow("avg_img", imSx)  
+  
+  
 
 blured_bg_image = cv2.GaussianBlur(avg_img_as_background, (9, 9), 0)
 
 blank_image = np.zeros((blured_bg_image.shape[0], blured_bg_image.shape[1], 3), np.uint8)
 
 final_counts = []
+
 for image in images:
-  print("one")
   blured_main_image = cv2.GaussianBlur(image, (9, 9), 0)
   diff = cv2.absdiff(blured_bg_image, blured_main_image)
-  ret, thresh = cv2.threshold(diff, 15, 255, cv2.THRESH_BINARY)
-  contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-  filtered_contours = []
-  for idx, cnt in enumerate(contours):      
-    area = cv2.contourArea(cnt)
-    if area > 10:
-      filtered_contours.append(cnt[idx])  
-  drawn_image = blank_image.copy()
-  drawn_image = cv2.drawContours(drawn_image, filtered_contours, -1, color=(0,255,0),thickness=-1)
-  #imS = cv2.resize(drawn_image, (960, 540))               
-  cv2.imshow("output", drawn_image)
-     
-out = cv2.VideoWriter("output.mp4", cv2.VideoWriter_fourcc(*'mp4v'), 7, (2052, 2644))
-for frame in images:
-    out.write(frame) # frame is a numpy.ndarray with shape (1280, 720, 3)
-out.release()
+  ret, thresh = cv2.threshold(diff, 20, 255, cv2.THRESH_BINARY)
+  #ret2,thresh = cv2.threshold(diff,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
-'''for img in final_img:
-  imS = cv2.resize(img, (960, 540))               
-  cv2.imshow("output", imS)
-  time.sleep(0.5)                   
+  filtered_contours = []
+  contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+  for idx, cnt in enumerate(contours):      
+    area = cv2.contourArea(cnt)    
+    if area > 15:
+        filtered_contours.append(cnt)
+      
+  for c in filtered_contours:
+    # compute the center of the contour
+    try:
+        M = cv2.moments(c)
+        cX = int(M["m10"] / M["m00"])
+        cY = int(M["m01"] / M["m00"])
+        # draw the contour and center of the shape on the image
+        cv2.circle(image, (cX, cY), 20, (0, 0, 255), 5)
+    
+    except:
+        pass 
+          
+          
+    #drawn_image = blank_image.copy()
+    #drawn_image = cv2.drawContours(drawn_image, contours, -1, color=(0,255,0),thickness=-1)
+    #imS = cv2.resize(drawn_image, (1000, 500))               
+    #cv2.imshow("result", imS)
+    
+  imSs = cv2.resize(image, (1000, 500))               
+  cv2.imshow("original", imSs)  
+  
+  if cv2.waitKey(200) & 0xFF == ord('q'):
+      break
+      
+
+
+  '''for img in final_img:
+    imS = cv2.resize(img, (960, 540))               
+    cv2.imshow("output", imS)
+    time.sleep(0.5)                   
+    '''
+
+
+  '''
+  print("updt")
+  print(updated_array_int[0])
+  print(updated_array_int[0].shape)
+  print(type(updated_array_int[0]))
+  # plt.imshow(imagex[0])
+  # plt.show()
   '''
 
 
-'''
-print("updt")
-print(updated_array_int[0])
-print(updated_array_int[0].shape)
-print(type(updated_array_int[0]))
-# plt.imshow(imagex[0])
-# plt.show()
-'''
-
-cv2.waitKey(0)
-cv2.destroyAllWindows()
 # cv2.destroyAllwindows()
 
 
