@@ -12,13 +12,11 @@ list_grid = [0, 138, 261, 390, 519, 636, 762, 897,
 
 
 backSub = cv2.createBackgroundSubtractorMOG2(
-    history=50, varThreshold=20, detectShadows=False)
+    history=50, varThreshold=20, detectShadows=True)
 #backSub = cv2.createBackgroundSubtractorKNN(history = 10, dist2Threshold = 800.0, detectShadows = False)
 ret, images = cv2.imreadmulti(
     'C:/Users/marci/Documents/projetos_code/bands fish/videos/histo.tif', [], cv2.IMREAD_GRAYSCALE)
 
-
-#fish_1 = fish_2 = fish_3 = fish_4 = fish_5 = fish_6 = fish_7 = fish_8 = fish_9 = fish_10 = fish_11 = fish_12 = fish_13 = fish_14 = fish_15 = None
 
 fish = {"fish_1": None, "fish_2": None, "fish_3": None, "fish_4": None, "fish_5": None, "fish_6": None, "fish_7": None,
         "fish_8": None, "fish_9": None, "fish_10": None, "fish_11": None, "fish_12": None, "fish_13": None, "fish_14": None, "fish_15": None}
@@ -63,8 +61,23 @@ for idx, image in enumerate(images):
                             provisional_fish['fish_' +
                                              str(idx + 1)].append((cX, cY))
 
+        invalids = []
+        left = []
+        left_values = []
+        right = []
+        right_values = []
         for key, value in provisional_fish.items():
             if value is not None:
+                
+                # decide if right or left based on fish dictionary (fish os previous)
+                if fish[key] is not None:
+                    if value[0][0] < (fish[key][0] - 2):
+                        left.append(key)
+                        left_values.append(int(abs(value[0][0] - fish[key][0])))
+                    elif value[0][0] > (fish[key][0] + 2):
+                        right.append(key)
+                        right_values.append(int(abs(value[0][0] - fish[key][0])))
+                
                 if len(value) > 1 and fish[key] is not None:
                     results_distance = []
 
@@ -77,18 +90,33 @@ for idx, image in enumerate(images):
                     fish.update({key: value[min_index]})
                 else:
                     fish.update({key: value[0]})
-
+                
+            else:
+                invalids.append(key)
+                
         for item in fish.items():
             if item[1] is not None:
-                cv2.circle(img_3channels,
-                           (item[1][0], item[1][1]), 20, (0, 0, 255), 5)
-
+                if item[0] not in invalids:
+                    if item[0] in left:
+                        value_index = left.index(item[0])
+                        cv2.circle(img_3channels, (item[1][0], item[1][1]), left_values[value_index], (255, 0, 0), 5)                        
+                    elif item[0] in right:
+                        value_index = right.index(item[0])
+                        cv2.circle(img_3channels, (item[1][0], item[1][1]), right_values[value_index], (0, 255, 0), 5)     
+                        #cv2.circle(img_3channels, (item[1][0], item[1][1]), 20, (0, 255, 0), 5)
+                    else:
+                        cv2.circle(img_3channels, (item[1][0], item[1][1]), 5, (0, 0, 255), 5)
+                else:
+                    cv2.circle(img_3channels, (item[1][0], item[1][1]), 5, (0, 0, 255), 5)
+                    
+        
+            
         img_w = img_3channels[0].shape[0]
         for coord in list_grid:
             start_point = (0, coord)
             end_point = (img_w, coord)
             img_3channels = cv2.line(
-                img_3channels, start_point, end_point, (0, 255, 0), 4)
+                img_3channels, start_point, end_point, (255, 170, 0), 4)
 
         imS = cv2.resize(img_3channels, (1000, 500))
         cv2.imshow("output", imS)
