@@ -7,6 +7,8 @@ import math
 import pandas as pd
 import time
 from matplotlib import pyplot as plt
+import os
+
 
 # the 3 lines bellow you need to configure as your needs
 # the path of the images stack. Must end with .tif
@@ -18,7 +20,7 @@ frame_space = 3
 list_grid = [0, 138, 261, 390, 519, 636, 762, 897,
              1008, 1140, 1263, 1383, 1515, 1638, 1761, 1900]
 
-
+  
 def normVideo(frames):
 
     norm_frames = []
@@ -48,6 +50,13 @@ ret, images = cv2.imreadmulti(path_for_images, [], cv2.IMREAD_GRAYSCALE)
 
 final_path = pathlib.PurePath(path_for_images)
 file_name = final_path.name
+
+if os.path.exists(file_name):
+  os.remove(file_name)
+  print("CSV file exist, I will remove it before creating a new one")
+else:
+  print("CSV file does not exist, I will crate it")
+  
 
 with open(file_name + '.csv', 'a') as fd:
     fd.write('frame_number, fish_1, fish_2,fish_3,fish_4,fish_5,fish_6,fish_7,fish_8,fish_9,fish_10,fish_11,fish_12,fish_13,fish_14,fish_15\n')
