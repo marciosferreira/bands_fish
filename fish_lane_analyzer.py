@@ -1,18 +1,11 @@
-import scipy.stats
-import pathlib
-from skimage import io
 import cv2
-import numpy as np
-import math
-import pandas as pd
-import time
-from matplotlib import pyplot as plt
+import pathlib
 import os
 
 
 # the 3 lines bellow you need to configure as your needs
 # the path of the images stack. Must end with .tif
-path_for_images = 'C:/Users/marci/Documents/projetos_code/bands fish/videos/20210921_ip10-1_4_MMStack_Default.ome.tif'
+path_for_images = 'C:/Users/marci/Documents/projetos_code/bands fish/videos/20211009_cab_exp_1_MMStack_Default.ome.tif'
 # how many frames to quit when analyzing.
 # Using every frame can increase too much the variability of the data. We suggest at least 3.
 frame_space = 3
@@ -20,7 +13,7 @@ frame_space = 3
 list_grid = [0, 138, 261, 390, 519, 636, 762, 897,
              1008, 1140, 1263, 1383, 1515, 1638, 1761, 1900]
 
-  
+
 def normVideo(frames):
 
     norm_frames = []
@@ -43,6 +36,7 @@ def normVideo(frames):
     return norm_frames, read_frames
 #
 
+
 backSub = cv2.createBackgroundSubtractorMOG2(
     history=50, varThreshold=20, detectShadows=True)
 #backSub = cv2.createBackgroundSubtractorKNN(history = 10, dist2Threshold = 800.0, detectShadows = False)
@@ -51,14 +45,14 @@ ret, images = cv2.imreadmulti(path_for_images, [], cv2.IMREAD_GRAYSCALE)
 final_path = pathlib.PurePath(path_for_images)
 file_name = final_path.name
 
-if os.path.exists(file_name):
-  os.remove(file_name)
-  print("CSV file exist, I will remove it before creating a new one")
+if os.path.exists('results/' + file_name + '.csv'):
+    os.remove('results/' + file_name + '.csv')
+    print("CSV file exist, I will remove it before creating a new one")
 else:
-  print("CSV file does not exist, I will crate it")
-  
+    print("CSV file does not exist, I will crate it")
 
-with open(file_name + '.csv', 'a') as fd:
+
+with open("results/" + file_name + '.csv', 'a') as fd:
     fd.write('frame_number, fish_1, fish_2,fish_3,fish_4,fish_5,fish_6,fish_7,fish_8,fish_9,fish_10,fish_11,fish_12,fish_13,fish_14,fish_15\n')
 
 # normalize the frames
@@ -173,7 +167,7 @@ for idxf, image in enumerate(images_norm):
             else:
                 final_row.append(0)
 
-        with open(file_name + '.csv', 'a') as fd:
+        with open('results/' + file_name + '.csv', 'a') as fd:
             my_str = ','.join(str(x) for x in final_row)
             my_str = my_str + '\n'
             fd.write(my_str)
