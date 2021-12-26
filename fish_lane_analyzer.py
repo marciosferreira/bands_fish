@@ -41,7 +41,7 @@ def normVideo(frames):
         norm_frames.append(image_enhanced)
 
     return norm_frames, read_frames
-
+#
 
 backSub = cv2.createBackgroundSubtractorMOG2(
     history=50, varThreshold=20, detectShadows=True)
