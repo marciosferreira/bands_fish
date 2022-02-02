@@ -2,10 +2,9 @@ import cv2
 import pathlib
 import os
 
-
 # the 3 lines bellow you need to configure as your needs
 # the path of the images stack. Must end with .tif
-path_for_images = 'C:/Users/marci/Documents/projetos_code/bands fish/videos/20211009_cab_exp_1_MMStack_Default.ome.tif'
+path_for_images = 'C:/Users/marci/Documents/projetos_code/bands fish/videos/risa_videos/20210921_ip10-1_1_MMStack_Default.ome.tif'
 # how many frames to quit when analyzing.
 # Using every frame can increase too much the variability of the data. We suggest at least 3.
 frame_space = 3
@@ -44,16 +43,18 @@ ret, images = cv2.imreadmulti(path_for_images, [], cv2.IMREAD_GRAYSCALE)
 
 final_path = pathlib.PurePath(path_for_images)
 file_name = final_path.name
+path_name = str(final_path.parents[0])
 
-if os.path.exists('results/' + file_name + '.csv'):
-    os.remove('results/' + file_name + '.csv')
-    print("CSV file exist, I will remove it before creating a new one")
+
+if os.path.exists(path_name + "/" + file_name + '.csv'):
+    os.remove(path_name + "/" + file_name + '.csv')
+    print("CSV file exist, It has been removed to a new one be created")
 else:
-    print("CSV file does not exist, I will crate it")
+    print("CSV file does not exist, it will be created")
 
 
-with open("results/" + file_name + '.csv', 'a') as fd:
-    fd.write('frame_number, fish_1, fish_2,fish_3,fish_4,fish_5,fish_6,fish_7,fish_8,fish_9,fish_10,fish_11,fish_12,fish_13,fish_14,fish_15\n')
+with open(path_name + "/" + file_name + '.csv', 'a') as fd:
+    fd.write('frame_number, fish_1_mov, fish_1_pos, fish_2_mov, fish_2_pos, fish_3_mov, fish_3_pos, fish_4_mov, fish_4_pos, fish_5_mov, fish_5_pos, fish_6_mov, fish_6_pos, fish_7_mov, fish_7_pos, fish_8_mov, fish_8_pos, fish_9_mov, fish_9_pos, fish_10_mov, fish_10_pos, fish_11_mov, fish_11_pos, fish_12_mov, fish_12_pos, fish_13, fish_13_pos, fish_14_mov, fish_14_pos, fish_15_mov, fish_15_pos\n')
 
 # normalize the frames
 images_norm, read_frames = normVideo(images)
@@ -101,7 +102,8 @@ for idxf, image in enumerate(images_norm):
                         else:
                             provisional_fish['fish_' +
                                              str(idx + 1)].append((cX, cY))
-
+        #print(provisional_fish)
+        #cv2.waitKey(0)
         invalids = []
         left = []
         left_values = []
@@ -142,8 +144,10 @@ for idxf, image in enumerate(images_norm):
             else:
                 invalids.append(key)
 
+        
         final_row = [read_frames[idxf]]
         for item in fish.items():
+            
             if item[1] is not None:
                 if item[0] not in invalids:
                     if item[0] in left:
@@ -165,9 +169,10 @@ for idxf, image in enumerate(images_norm):
                                (item[1][0], item[1][1]), 5, (0, 0, 255), 5)
                     final_row.append(0)
             else:
-                final_row.append(0)
-
-        with open('results/' + file_name + '.csv', 'a') as fd:
+                final_row.append(0)            
+            
+            final_row.append(item[1])
+        with open(path_name + "/" + file_name + '.csv', 'a') as fd:
             my_str = ','.join(str(x) for x in final_row)
             my_str = my_str + '\n'
             fd.write(my_str)
@@ -193,7 +198,7 @@ for idxf, image in enumerate(images_norm):
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 height, width, layers = video_final[0].shape
 size = (width, height)
-out_vid = "C:/Users/marci/Documents/projetos_code/bands fish/videos/output.mp4"
+out_vid = path_name + "/" + file_name + "_output_video.mp4"
 out = cv2.VideoWriter(out_vid, fourcc, 10, size)
 for i in video_final:
     out.write(i)
