@@ -54,7 +54,7 @@ else:
 
 
 with open(path_name + "/" + file_name + '.csv', 'a') as fd:
-    fd.write('frame_number, fish_1_mov, fish_1_pos, fish_2_mov, fish_2_pos, fish_3_mov, fish_3_pos, fish_4_mov, fish_4_pos, fish_5_mov, fish_5_pos, fish_6_mov, fish_6_pos, fish_7_mov, fish_7_pos, fish_8_mov, fish_8_pos, fish_9_mov, fish_9_pos, fish_10_mov, fish_10_pos, fish_11_mov, fish_11_pos, fish_12_mov, fish_12_pos, fish_13, fish_13_pos, fish_14_mov, fish_14_pos, fish_15_mov, fish_15_pos\n')
+    fd.write('frame_number, fish_1_mov, fish_1_pos, fish_2_mov, fish_2_pos, fish_3_mov, fish_3_pos, fish_4_mov, fish_4_pos, fish_5_mov, fish_5_pos, fish_6_mov, fish_6_pos, fish_7_mov, fish_7_pos, fish_8_mov, fish_8_pos, fish_9_mov, fish_9_pos, fish_10_mov, fish_10_pos, fish_11_mov, fish_11_pos, fish_12_mov, fish_12_pos, fish_13_mov, fish_13_pos, fish_14_mov, fish_14_pos, fish_15_mov, fish_15_pos\n')
 
 # normalize the frames
 images_norm, read_frames = normVideo(images)
@@ -114,18 +114,18 @@ for idxf, image in enumerate(images_norm):
 
                 # decide if right or left based on fish dictionary (fish os previous)
                 if fish[key] is not None:
-                    if value[0][0] < (fish[key][0] - 5):
+                    if value[0][0] < (fish[key][0] - 1):
                         left.append(key)
                         result_left = int(abs(value[0][0] - fish[key][0]))
-                        if result_left > 40:
-                            result_left = 40
+                        if result_left > 50:
+                            result_left = 0
                         left_values.append(result_left)
-                    elif value[0][0] > (fish[key][0] + 5
+                    elif value[0][0] > (fish[key][0] + 1
                                         ):
                         right.append(key)
                         result_right = int(abs(value[0][0] - fish[key][0]))
-                        if result_right > 40:
-                            result_right = 40
+                        if result_right > 50:
+                            result_right = 0
                         right_values.append(result_right)
 
                 if len(value) > 1 and fish[key] is not None:
@@ -170,8 +170,12 @@ for idxf, image in enumerate(images_norm):
                     final_row.append(0)
             else:
                 final_row.append(0)            
-            
-            final_row.append(item[1])
+            coordinates = item[1]
+            if coordinates != None:
+                final_row.append(item[1][0])
+            else:
+                final_row.append("None")
+                
         with open(path_name + "/" + file_name + '.csv', 'a') as fd:
             my_str = ','.join(str(x) for x in final_row)
             my_str = my_str + '\n'
