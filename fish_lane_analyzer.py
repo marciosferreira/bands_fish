@@ -7,7 +7,7 @@ import os
 path_for_images = 'C:/Users/marci/Documents/projetos_code/bands fish/videos/risa_videos/20210921_ip10-1_1_MMStack_Default.ome.tif'
 # how many frames to quit when analyzing.
 # Using every frame can increase too much the variability of the data. We suggest at least 3.
-frame_space = 3
+frame_space = 1
 # can make adjustment if the position of the camera changes
 list_grid = [0, 138, 261, 390, 519, 636, 762, 897,
              1008, 1140, 1263, 1383, 1515, 1638, 1761, 1900]
@@ -24,6 +24,7 @@ def normVideo(frames):
         read_frames.append(i)
 
         frame = frames[i]
+       
 
         if (frame is not None) and (frame.size > 0):
 
@@ -117,14 +118,14 @@ for idxf, image in enumerate(images_norm):
                     if value[0][0] < (fish[key][0] - 1):
                         left.append(key)
                         result_left = int(abs(value[0][0] - fish[key][0]))
-                        if result_left > 50:
+                        if result_left > 15:
                             result_left = 0
                         left_values.append(result_left)
                     elif value[0][0] > (fish[key][0] + 1
                                         ):
                         right.append(key)
                         result_right = int(abs(value[0][0] - fish[key][0]))
-                        if result_right > 50:
+                        if result_right > 15:
                             result_right = 0
                         right_values.append(result_right)
 
@@ -196,14 +197,14 @@ for idxf, image in enumerate(images_norm):
 
         video_final.append(imS)
 
-        if cv2.waitKey(200) & 0xFF == ord('q'):
+        if cv2.waitKey(50) & 0xFF == ord('q'):
             break
 
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 height, width, layers = video_final[0].shape
 size = (width, height)
 out_vid = path_name + "/" + file_name + "_output_video.mp4"
-out = cv2.VideoWriter(out_vid, fourcc, 10, size)
+out = cv2.VideoWriter(out_vid, fourcc, 6, size)
 for i in video_final:
     out.write(i)
 out.release()
