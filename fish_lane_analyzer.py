@@ -1,6 +1,18 @@
 import cv2
 import pathlib
 import os
+from numpy import NaN
+
+#20210921_ip10-1_1_MMStack_Default.ome.tif , expessura 40 , velocidade 6.5, 100-300, 400-600
+#x4
+
+#20211116_HdrR_16_MMStack_Default.ome.tif , espessura 4 , velocidade 6.5, 0-200, 300-500
+#20211203_cab_3_MMStack_Default.ome.tif , espessura 40, velocidade 8.5, 100-300, 400-600
+#20211116_HdrR_18_MMStack_Default.ome.tif, espessura 7, velocidade 6.5, 0-200, 300-500
+#20210921_ip10-1_9_MMStack_Default.ome.tif, espessura 40, velocidade 6.5, opacidade 30, 100-300, 400-600
+#20211116_HdrR_19_MMStack_Default.ome.tif, espessura 4, velocidade 6.5, 0-200, 300-500
+#20211117_HdrR_1_MMStack_Default.ome.tif, espessura  4, velocidade 6.5, 100-300, 400-600
+
 
 # the 3 lines bellow you need to configure as your needs
 # the path of the images stack. Must end with .tif
@@ -22,6 +34,9 @@ def normVideo(frames):
     read_frames = []
     for i in range(0, len(frames), frame_space):
         read_frames.append(i)
+        
+        print("the frame")
+        print(i)
 
         frame = frames[i]
        
@@ -115,18 +130,19 @@ for idxf, image in enumerate(images_norm):
 
                 # decide if right or left based on fish dictionary (fish os previous)
                 if fish[key] is not None:
-                    if value[0][0] < (fish[key][0] - 1):
+                    if value[0][0] < (fish[key][0] - 0):  ##############
                         left.append(key)
                         result_left = int(abs(value[0][0] - fish[key][0]))
-                        if result_left > 15:
-                            result_left = 0
+                        if result_left > 2000000:
+                            print(result_left)
+                            result_left = 1000
                         left_values.append(result_left)
-                    elif value[0][0] > (fish[key][0] + 1
-                                        ):
+                    elif value[0][0] > (fish[key][0] + 0):  ###########
                         right.append(key)
                         result_right = int(abs(value[0][0] - fish[key][0]))
-                        if result_right > 15:
-                            result_right = 0
+                        if result_right > 200000:
+                            print(result_right)
+                            result_right = 1000
                         right_values.append(result_right)
 
                 if len(value) > 1 and fish[key] is not None:
