@@ -16,7 +16,7 @@ from numpy import NaN
 
 # the 3 lines bellow you need to configure as your needs
 # the path of the images stack. Must end with .tif
-path_for_images = 'C:/Users/marci/Documents/projetos_code/bands fish/videos/risa_videos/20210921_ip10-1_1_MMStack_Default.ome.tif'
+path_for_images = 'C:/Users/marci/Documents/projetos_code/bands fish/videos/risa_videos/20210921_ip10-1_3_MMStack_Default.ome.tif'
 # how many frames to quit when analyzing.
 # Using every frame can increase too much the variability of the data. We suggest at least 3.
 frame_space = 1
