@@ -1,4 +1,4 @@
-# How to use:
+## This software is used for tracking he fish in the arenas, detect direction and movement strenght:
 
 -> install "opencv", "pathlib" and "os" modules using conda ou pip.
 
